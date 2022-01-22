@@ -4,7 +4,11 @@ import { Feather } from '@expo/vector-icons';
 import { ThemeContext } from '@src/contexts';
 import { hp } from '@src/utils';
 
-const ThemeToggler: React.FC = () => {
+export interface ThemeTogglerProps {
+  size?: number;
+}
+
+const ThemeToggler: React.FC<ThemeTogglerProps> = ({ size = 4.5 }) => {
   const {
     theme,
     currentThemeMode: mode,
@@ -13,7 +17,7 @@ const ThemeToggler: React.FC = () => {
   return (
     <Pressable onPress={toggle}>
       <Feather
-        size={hp(4.5)}
+        size={hp(size)}
         color={theme.colors.text}
         name={mode === 'dark' ? 'moon' : 'sun'}
       />

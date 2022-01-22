@@ -1,8 +1,8 @@
 import { NavigationProp, useNavigation } from '@react-navigation/native';
-import { AppRoutes } from '@src/navigator/navigator.types';
+import { AllRoutes } from '@src/navigator/navigator.types';
 
 const useAppNavigation = () => {
-  const nav = useNavigation<NavigationProp<AppRoutes>>();
+  const nav = useNavigation<NavigationProp<AllRoutes>>();
   return nav;
 };
 
