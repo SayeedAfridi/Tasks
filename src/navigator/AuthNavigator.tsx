@@ -1,6 +1,5 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { ForgetPasswordScreen, SigninScreen } from '@src/screens';
-import SignupScreen from '@src/screens/StartupScreen';
+import { ForgetPasswordScreen, SigninScreen, SignupScreen } from '@src/screens';
 import React from 'react';
 import { AuthRoutes } from './navigator.types';
 

@@ -6,19 +6,21 @@ import React from 'react';
 import { View } from 'react-native';
 import LottieView from 'lottie-react-native';
 import { hp } from '@src/utils';
+import { useSelector } from 'react-redux';
+import { selectUser } from '@src/redux/auth/auth.selectors';
 
 const size = hp(45);
 
-const SignupScreen: React.FC<AppNavigationProps<'Startup'>> = ({
+const StartupScreen: React.FC<AppNavigationProps<'Startup'>> = ({
   navigation,
 }) => {
   const [animationFinished, setanimationFinished] =
     React.useState<boolean>(false);
   const lottieRef = React.useRef<LottieView>();
   const [mounted, setMounted] = React.useState<boolean>(false);
+  const user = useSelector(selectUser);
 
   const handleAnimationFinished = () => {
-    console.log('animation finished');
     if (!mounted) {
       lottieRef?.current?.reset();
       return;
@@ -34,7 +36,10 @@ const SignupScreen: React.FC<AppNavigationProps<'Startup'>> = ({
   });
 
   React.useEffect(() => {
-    let route: keyof AppRoutes = 'Home';
+    let route: keyof AppRoutes = 'Authentication';
+    if (user) {
+      route = 'Home';
+    }
     if (animationFinished && mounted) {
       navigation.replace(route);
     }
@@ -73,4 +78,4 @@ const SignupScreen: React.FC<AppNavigationProps<'Startup'>> = ({
   );
 };
 
-export default SignupScreen;
+export default StartupScreen;
