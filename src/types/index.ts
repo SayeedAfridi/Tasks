@@ -25,6 +25,7 @@ export interface ThemeContextInterface {
 }
 
 export type User = {
-  identifier: string;
-  password: string;
+  name: string;
+  uid: string;
+  email: string;
 };
