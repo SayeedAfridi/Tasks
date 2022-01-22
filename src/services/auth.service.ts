@@ -4,6 +4,7 @@ import {
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
   UserCredential,
+  sendPasswordResetEmail,
 } from '@firebase/auth';
 import { FirebaseApp } from '@firebase/app';
 import firebaseService from './firebase.service';
@@ -51,6 +52,17 @@ class _AuthService {
         password
       );
       return userCred;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async forgetPassword(email: string): Promise<void> {
+    try {
+      if (!this.auth) {
+        throw new Error(noauth);
+      }
+      await sendPasswordResetEmail(this.auth, email);
     } catch (error) {
       throw error;
     }
