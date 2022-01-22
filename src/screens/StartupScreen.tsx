@@ -1,27 +1,45 @@
-import { Text } from '@src/components';
 import { Container } from '@src/containers';
-import { useTheme } from '@src/hooks';
 import useInteractionManagerMount from '@src/hooks/useInteractionManagerMount';
 import { AppNavigationProps, AppRoutes } from '@src/navigator/navigator.types';
 import { authService, dbService, firebaseService } from '@src/services';
 import React from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { View } from 'react-native';
+import LottieView from 'lottie-react-native';
+import { hp } from '@src/utils';
+
+const size = hp(45);
 
 const SignupScreen: React.FC<AppNavigationProps<'Startup'>> = ({
   navigation,
 }) => {
-  const theme = useTheme();
+  const [animationFinished, setanimationFinished] =
+    React.useState<boolean>(false);
+  const lottieRef = React.useRef<LottieView>();
+  const [mounted, setMounted] = React.useState<boolean>(false);
+
+  const handleAnimationFinished = () => {
+    console.log('animation finished');
+    if (!mounted) {
+      lottieRef?.current?.reset();
+      return;
+    }
+    setanimationFinished(true);
+  };
 
   useInteractionManagerMount(() => {
     const app = firebaseService.init();
-    console.log(app.name);
     dbService.init(app);
     authService.init(app);
-    let route: keyof AppRoutes = 'Home';
-    setTimeout(() => {
-      navigation.replace(route);
-    }, 500);
+    setMounted(true);
   });
+
+  React.useEffect(() => {
+    let route: keyof AppRoutes = 'Home';
+    if (animationFinished && mounted) {
+      navigation.replace(route);
+    }
+  }, [animationFinished, mounted]);
+
   return (
     <Container>
       <View
@@ -31,9 +49,25 @@ const SignupScreen: React.FC<AppNavigationProps<'Startup'>> = ({
           alignItems: 'center',
         }}
       >
-        <Text>Please Wait...</Text>
-        <View style={{ height: 16 }} />
-        <ActivityIndicator color={theme.colors.text} size='large' />
+        <View
+          style={{
+            height: size,
+            width: size,
+          }}
+        >
+          <LottieView
+            ref={lottieRef as any}
+            style={{
+              flex: 1,
+              height: size,
+              width: size,
+            }}
+            loop={false}
+            autoPlay={true}
+            source={require('../assets/splash')}
+            onAnimationFinish={handleAnimationFinished}
+          />
+        </View>
       </View>
     </Container>
   );
