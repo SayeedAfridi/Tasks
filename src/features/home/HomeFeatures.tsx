@@ -1,30 +1,53 @@
-import { Button, Spacer, Text, ThemeToggler } from '@src/components';
 import { AppNavigationProps } from '@src/navigator/navigator.types';
-import { selectUser } from '@src/redux/auth/auth.selectors';
-import { logout } from '@src/redux/auth/auth.slice';
-import { makeStyles } from '@src/theme/theme.utils';
-import { fp, hp } from '@src/utils';
 import React from 'react';
 import { View } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
 import UserHeader from './components/UserHeader';
+import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
+import { screenWidth } from '@src/utils';
+import { useTheme } from '@src/hooks';
+import { Spacer, Text } from '@src/components';
+import { OpenTasks, CompletedTasks, WorkingTasks } from './scenes';
 
 export interface HomeFeaturesProps extends AppNavigationProps<'Home'> {}
 
-const useStyles = makeStyles((theme) => ({
-  container: {
-    flex: 1,
-  },
-}));
-
 const HomeFeatures: React.FC<HomeFeaturesProps> = ({}) => {
-  const styles = useStyles();
-  const dispatch = useDispatch();
-  const user = useSelector(selectUser);
+  const theme = useTheme();
+
+  const renderScene = SceneMap({
+    open: OpenTasks,
+    working: WorkingTasks,
+    completed: CompletedTasks,
+  });
+
+  const [index, setIndex] = React.useState(0);
+  const [routes] = React.useState([
+    { key: 'open', title: 'Open' },
+    { key: 'working', title: 'Working' },
+    { key: 'completed', title: 'Completed' },
+  ]);
 
   return (
-    <View style={styles.container}>
+    <View style={{ flex: 1 }}>
       <UserHeader />
+      <Spacer />
+      <TabView
+        renderTabBar={(props) => (
+          <TabBar
+            {...props}
+            indicatorStyle={{ backgroundColor: theme.colors.primary }}
+            style={{
+              backgroundColor: theme.colors.background,
+            }}
+            renderLabel={({ route }) => (
+              <Text variant='title'>{route.title}</Text>
+            )}
+          />
+        )}
+        navigationState={{ index, routes }}
+        renderScene={renderScene}
+        onIndexChange={setIndex}
+        initialLayout={{ width: screenWidth }}
+      />
     </View>
   );
 };

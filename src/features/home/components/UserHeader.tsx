@@ -12,9 +12,7 @@ const fontSize = hp(2.5);
 
 const UserHeader: React.FC = () => {
   const theme = useTheme();
-  const user = useSelector(selectUser);
   const dispatch = useDispatch();
-  const name = user?.name.split(' ')[0];
 
   const handleLogout = () => {
     dispatch(logout());
@@ -30,7 +28,7 @@ const UserHeader: React.FC = () => {
       }}
     >
       <Text variant='title' style={{ fontSize }}>
-        {name}'s Tasks
+        My Tasks
       </Text>
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
         <ThemeToggler size={3} />
