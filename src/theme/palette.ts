@@ -8,6 +8,7 @@ const palette = {
   lightGrey: '#efefef',
   darkTangerine: '#FEA90E',
   red: '#f44336',
+  green: '#4caf50',
 };
 
 export default palette;

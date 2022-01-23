@@ -6,22 +6,30 @@ import { TaskStatus } from '@src/types';
 import { fp } from '@src/utils';
 import { transparentize } from 'polished';
 import React from 'react';
-import { Pressable, View } from 'react-native';
+import { ActivityIndicator, Pressable, View } from 'react-native';
+import { format } from 'date-fns';
+import { Timestamp } from '@firebase/firestore';
+import { getErrorMessage } from '@src/error-handler/helper';
+import { useDispatch } from 'react-redux';
+import {
+  showErrorSnackbar,
+  showSuccessSnackbar,
+} from '@src/redux/snackbar/snackbar.slice';
+import { dbService } from '@src/services';
 
 export interface TaskItemProps {
   title: string;
   id: string;
-  createdAt: string;
+  createdAt: Timestamp;
   onMove?: (id: string) => void;
   moveTo?: TaskStatus;
+  status: TaskStatus;
 }
 
 const useStyles = makeStyles((theme) => ({
   container: {
     padding: theme.spacing.s,
     borderLeftWidth: 4,
-    borderLeftColor: theme.colors.primary,
-    backgroundColor: transparentize(0.85, theme.colors.primary),
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -29,7 +37,6 @@ const useStyles = makeStyles((theme) => ({
   date: { color: theme.colors.grey },
   buttonContainer: {
     padding: theme.spacing.s,
-    backgroundColor: transparentize(0.3, theme.colors.secondary),
     borderRadius: 100 / 2,
   },
 }));
@@ -42,26 +49,76 @@ const TaskItem: React.FC<TaskItemProps> = ({
   createdAt,
   moveTo,
   onMove,
+  status,
 }) => {
+  const [loading, setLoading] = React.useState<boolean>(false);
   const styles = useStyles();
+  const dispatch = useDispatch();
   const theme = useTheme();
-  const handlePress = () => {
-    onMove?.(id);
+
+  const handlePress = async () => {
+    if (!loading && moveTo) {
+      try {
+        setLoading(true);
+        await dbService.updateTask(id, moveTo);
+        setLoading(false);
+        dispatch(
+          showSuccessSnackbar({
+            message: `Task moved to ${moveTo}`,
+          })
+        );
+        onMove?.(id);
+      } catch (error) {
+        setLoading(false);
+        const message = getErrorMessage(error);
+        dispatch(showErrorSnackbar({ message }));
+      }
+    }
   };
-  const color = theme.colors.primary;
+  const color =
+    status === 'open'
+      ? theme.colors.primary
+      : status === 'working'
+      ? theme.colors.secondary
+      : theme.colors.success;
+
+  const btnColor =
+    status === 'open'
+      ? theme.colors.secondary
+      : status === 'working'
+      ? theme.colors.primary
+      : theme.colors.success;
 
   return (
-    <View style={styles.container}>
+    <View
+      style={[
+        styles.container,
+        {
+          borderLeftColor: color,
+          backgroundColor: transparentize(0.85, color),
+        },
+      ]}
+    >
       <View style={{ flex: 1 }}>
         <Text variant='title'>{title}</Text>
         <Spacer />
         <Text variant='body' style={styles.date}>
-          15 jan, 2022
+          {format(new Date(createdAt.toDate()), 'dd MMM, yyyy hh:mm aaa')}
         </Text>
       </View>
       {onMove ? (
-        <Pressable onPress={handlePress} style={styles.buttonContainer}>
-          <Feather name='arrow-right' size={fontSize} color='#fff' />
+        <Pressable
+          onPress={handlePress}
+          style={[
+            styles.buttonContainer,
+            { backgroundColor: transparentize(0.3, btnColor) },
+          ]}
+        >
+          {loading ? (
+            <ActivityIndicator size={fontSize} color='#fff' />
+          ) : (
+            <Feather name='arrow-right' size={fontSize} color='#fff' />
+          )}
         </Pressable>
       ) : null}
     </View>

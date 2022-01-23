@@ -4,10 +4,18 @@ import {
   getDoc,
   doc,
   setDoc,
+  Timestamp,
+  collection,
+  addDoc,
+  getDocs,
+  query,
+  where,
+  updateDoc,
 } from '@firebase/firestore';
 import { FirebaseApp } from '@firebase/app';
-import { User } from '@src/types';
-import { usersCollection } from '@src/containers/db.constants';
+import { Task, TaskStatus, User } from '@src/types';
+import { taskCollection, usersCollection } from '@src/containers/db.constants';
+import { isBefore } from 'date-fns';
 
 const nodb = 'Please initialize db first';
 
@@ -50,6 +58,79 @@ class _DBService {
       const docRef = doc(this.db, docPath);
       await setDoc(docRef, data);
       return data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async createTask(data: any): Promise<Task> {
+    try {
+      if (!this.db) {
+        throw new Error(nodb);
+      }
+      const finalData = {
+        ...data,
+        createdAt: Timestamp.now(),
+        updatedAt: Timestamp.now(),
+      };
+      const tRef = collection(this.db, taskCollection);
+      const docRef = await addDoc(tRef, finalData);
+      return {
+        ...finalData,
+        id: docRef.id,
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async fetchTasks(userUid: string, status: TaskStatus): Promise<Task[]> {
+    try {
+      if (!this.db) {
+        throw new Error(nodb);
+      }
+      const tRef = collection(this.db, taskCollection);
+      const q = query(
+        tRef,
+        where('userUid', '==', userUid),
+        where('status', '==', status)
+      );
+      const snapshots = await getDocs(q);
+      const tasks: Task[] = [];
+      snapshots.forEach((d) => {
+        if (!d.exists) {
+          return;
+        }
+        const task: Task = {
+          id: d.id,
+          ...(d.data() as any),
+        };
+        tasks.push(task);
+      });
+      return tasks.sort((a, b) => {
+        const aDate = a.createdAt.toDate();
+        const bDate = b.createdAt.toDate();
+        if (isBefore(aDate, bDate)) {
+          return 1;
+        } else {
+          return -1;
+        }
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async updateTask(id: string, status: TaskStatus): Promise<void> {
+    try {
+      if (!this.db) {
+        throw new Error(nodb);
+      }
+      const docRef = doc(this.db, `${taskCollection}/${id}`);
+      await updateDoc(docRef, {
+        status,
+        updatedAt: Timestamp.now(),
+      });
     } catch (error) {
       throw error;
     }

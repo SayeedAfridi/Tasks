@@ -7,6 +7,7 @@ import { screenWidth } from '@src/utils';
 import { useTheme } from '@src/hooks';
 import { Spacer, Text } from '@src/components';
 import { OpenTasks, CompletedTasks, WorkingTasks } from './scenes';
+import TaskForm from './components/TaskForm';
 
 export interface HomeFeaturesProps extends AppNavigationProps<'Home'> {}
 
@@ -48,6 +49,7 @@ const HomeFeatures: React.FC<HomeFeaturesProps> = ({}) => {
         onIndexChange={setIndex}
         initialLayout={{ width: screenWidth }}
       />
+      <TaskForm />
     </View>
   );
 };

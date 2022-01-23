@@ -1,3 +1,4 @@
+import { Timestamp } from '@firebase/firestore';
 import { Theme } from '@src/theme';
 
 export interface KnownBaseTheme {
@@ -34,8 +35,9 @@ export type Task = {
   id: string;
   title: string;
   status: TaskStatus;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Timestamp;
+  updatedAt: Timestamp;
+  userUid: string;
 };
 
 export type TaskStatus = 'open' | 'working' | 'completed';

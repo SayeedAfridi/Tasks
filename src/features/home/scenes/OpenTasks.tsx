@@ -1,37 +1,43 @@
-import { Spacer, Text } from '@src/components';
-import { useTheme } from '@src/hooks';
+import { selectUser } from '@src/redux/auth/auth.selectors';
+import { fetchOpenTasksAsync } from '@src/redux/task/task.async';
+import {
+  selectIsFetchingOpenTasks,
+  selectOpenTasks,
+} from '@src/redux/task/task.selectors';
+import { moveTaskToWorking } from '@src/redux/task/task.slice';
 import React from 'react';
-import { FlatList, View } from 'react-native';
-import TaskItem from '../components/TaskItem';
+import { useDispatch, useSelector } from 'react-redux';
+
+import BaseScene from './BaseScene';
 
 const OpenTasks: React.FC = ({}) => {
-  const theme = useTheme();
-  const [tasks, setTasks] = React.useState<number[]>([1, 2, 3, 4, 5]);
+  const tasks = useSelector(selectOpenTasks);
+  const loading = useSelector(selectIsFetchingOpenTasks);
+  const user = useSelector(selectUser);
+  const dispatch = useDispatch();
 
   const remove = React.useCallback((id) => {
-    setTasks((prev) => prev.filter((i) => i !== +id));
+    dispatch(moveTaskToWorking(id));
   }, []);
 
+  const getTasks = () => {
+    if (user) {
+      dispatch(fetchOpenTasksAsync(user?.uid));
+    }
+  };
+  React.useEffect(() => {
+    getTasks();
+  }, [user]);
+
   return (
-    <View style={{ flex: 1, margin: theme.spacing.m }}>
-      <Spacer />
-      <FlatList
-        data={tasks}
-        keyExtractor={(item) => item.toString()}
-        renderItem={({ item }) => {
-          return (
-            <TaskItem
-              title={`Task - ${item}`}
-              createdAt=''
-              id={item.toString()}
-              onMove={remove}
-              moveTo='working'
-            />
-          );
-        }}
-        ItemSeparatorComponent={() => <Spacer space='small' />}
-      />
-    </View>
+    <BaseScene
+      tasks={tasks}
+      loading={loading}
+      onRefresh={getTasks}
+      onRemove={remove}
+      moveTo='working'
+      noTitle='No Open Task'
+    />
   );
 };
 
