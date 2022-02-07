@@ -32,6 +32,7 @@ const HomeFeatures: React.FC<HomeFeaturesProps> = ({}) => {
       <UserHeader />
       <Spacer />
       <TabView
+        lazy={true}
         renderTabBar={(props) => (
           <TabBar
             {...props}

@@ -7,6 +7,7 @@ import Loader from '../components/Loader';
 import NoContainer from '../components/NoContainer';
 import TaskItem from '../components/TaskItem';
 import Animated, { Layout } from 'react-native-reanimated';
+import useInteractionManagerMount from '@src/hooks/useInteractionManagerMount';
 
 export interface BaseSceneProps {
   tasks: Task[];
@@ -26,12 +27,13 @@ const BaseScene: React.FC<BaseSceneProps> = ({
   noTitle,
 }) => {
   const theme = useTheme();
-
+  const [mounted, setMounted] = React.useState<boolean>(false);
+  useInteractionManagerMount(() => setMounted(true));
   return (
     <View style={{ flex: 1, margin: theme.spacing.m }}>
       <Spacer />
       {loading ? <Loader /> : null}
-      {!loading && !tasks.length ? (
+      {mounted && !loading && !tasks.length ? (
         <NoContainer onRefresh={onRefresh} title={noTitle} />
       ) : null}
       {!loading && tasks.length ? (
