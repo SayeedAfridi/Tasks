@@ -2,10 +2,11 @@ import { Spacer } from '@src/components';
 import { useTheme } from '@src/hooks';
 import { Task, TaskStatus } from '@src/types';
 import React from 'react';
-import { FlatList, RefreshControl, View } from 'react-native';
+import { RefreshControl, View } from 'react-native';
 import Loader from '../components/Loader';
 import NoContainer from '../components/NoContainer';
 import TaskItem from '../components/TaskItem';
+import Animated, { Layout } from 'react-native-reanimated';
 
 export interface BaseSceneProps {
   tasks: Task[];
@@ -34,7 +35,8 @@ const BaseScene: React.FC<BaseSceneProps> = ({
         <NoContainer onRefresh={onRefresh} title={noTitle} />
       ) : null}
       {!loading && tasks.length ? (
-        <FlatList
+        <Animated.FlatList
+          itemLayoutAnimation={Layout.springify()}
           refreshControl={
             <RefreshControl
               tintColor={theme.colors.text}
@@ -47,8 +49,8 @@ const BaseScene: React.FC<BaseSceneProps> = ({
           }
           showsVerticalScrollIndicator={false}
           data={tasks}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => {
+          keyExtractor={(item: any) => item.id}
+          renderItem={({ item }: { item: any }) => {
             return (
               <TaskItem
                 title={item.title}

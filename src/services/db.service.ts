@@ -77,6 +77,8 @@ class _DBService {
       const docRef = await addDoc(tRef, finalData);
       return {
         ...finalData,
+        createdAt: finalData.createdAt.toDate().toISOString(),
+        updatedAt: finalData.updatedAt.toDate().toISOString(),
         id: docRef.id,
       };
     } catch (error) {
@@ -101,15 +103,18 @@ class _DBService {
         if (!d.exists) {
           return;
         }
+        const data = d.data();
         const task: Task = {
           id: d.id,
-          ...(d.data() as any),
+          ...(data as any),
+          createdAt: data.createdAt.toDate().toISOString(),
+          updatedAt: data.updatedAt.toDate().toISOString(),
         };
         tasks.push(task);
       });
       return tasks.sort((a, b) => {
-        const aDate = a.createdAt.toDate();
-        const bDate = b.createdAt.toDate();
+        const aDate = new Date(a.createdAt);
+        const bDate = new Date(b.createdAt);
         if (isBefore(aDate, bDate)) {
           return 1;
         } else {

@@ -1,4 +1,11 @@
-import { BaseModal, Button, Spacer, Text, TextInput } from '@src/components';
+import {
+  BaseModal,
+  Button,
+  Spacer,
+  Text,
+  TextInput,
+  TextInputRef,
+} from '@src/components';
 import { useTheme } from '@src/hooks';
 import { selectUser } from '@src/redux/auth/auth.selectors';
 import { createTaskAsync } from '@src/redux/task/task.async';
@@ -16,6 +23,15 @@ const TaskForm: React.FC = ({}) => {
   const loading = useSelector(selectIsCreatingTask);
   const user = useSelector(selectUser);
   const dispatch = useDispatch();
+  const inputRef = React.useRef<TextInputRef>(null);
+
+  React.useEffect(() => {
+    if (visible) {
+      inputRef.current?.focus();
+    } else {
+      inputRef.current?.blur();
+    }
+  }, [visible]);
 
   const handleSubmit = async (v: any) => {
     if (!user) {
@@ -75,6 +91,7 @@ const TaskForm: React.FC = ({}) => {
           </Text>
           <Spacer />
           <TextInput
+            ref={inputRef}
             placeholder='Your task'
             value={values.title}
             error={errors.title}

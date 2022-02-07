@@ -8,7 +8,6 @@ import { transparentize } from 'polished';
 import React from 'react';
 import { ActivityIndicator, Pressable, View } from 'react-native';
 import { format } from 'date-fns';
-import { Timestamp } from '@firebase/firestore';
 import { getErrorMessage } from '@src/error-handler/helper';
 import { useDispatch } from 'react-redux';
 import {
@@ -16,11 +15,12 @@ import {
   showSuccessSnackbar,
 } from '@src/redux/snackbar/snackbar.slice';
 import { dbService } from '@src/services';
+import Animated, { ZoomInLeft, ZoomOutRight } from 'react-native-reanimated';
 
 export interface TaskItemProps {
   title: string;
   id: string;
-  createdAt: Timestamp;
+  createdAt: string;
   onMove?: (id: string) => void;
   moveTo?: TaskStatus;
   status: TaskStatus;
@@ -90,7 +90,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
       : theme.colors.success;
 
   return (
-    <View
+    <Animated.View
       style={[
         styles.container,
         {
@@ -98,12 +98,14 @@ const TaskItem: React.FC<TaskItemProps> = ({
           backgroundColor: transparentize(0.85, color),
         },
       ]}
+      entering={ZoomInLeft}
+      exiting={ZoomOutRight}
     >
       <View style={{ flex: 1 }}>
         <Text variant='title'>{title}</Text>
         <Spacer />
         <Text variant='body' style={styles.date}>
-          {format(new Date(createdAt.toDate()), 'dd MMM, yyyy hh:mm aaa')}
+          {format(new Date(createdAt), 'dd MMM, yyyy hh:mm aaa')}
         </Text>
       </View>
       {onMove ? (
@@ -121,7 +123,7 @@ const TaskItem: React.FC<TaskItemProps> = ({
           )}
         </Pressable>
       ) : null}
-    </View>
+    </Animated.View>
   );
 };
 

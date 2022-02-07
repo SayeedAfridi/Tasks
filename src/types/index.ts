@@ -35,8 +35,8 @@ export type Task = {
   id: string;
   title: string;
   status: TaskStatus;
-  createdAt: Timestamp;
-  updatedAt: Timestamp;
+  createdAt: string;
+  updatedAt: string;
   userUid: string;
 };
 
